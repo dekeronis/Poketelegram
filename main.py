@@ -3,7 +3,7 @@ from config import token
 
 from logic import Pokemon, get_pokemon
 
-bot = telebot.TeleBot(token) 
+bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['go'])
 def go(message):
@@ -44,6 +44,20 @@ def train(message):
         bot.reply_to(message, f"Тренировка успешна! {p.data['name']} получил новый уровень {p.level}!")
     else:
         bot.reply_to(message, f"{p.data['name']} потренировался и получил 10 XP!")
+
+@bot.message_handler(commands=['feed'])
+def feed(message):
+    user_id = message.from_user.id
+    p = get_pokemon(user_id)
+
+    if not p:
+        bot.reply_to(message, "Сначала создай покемона через /go")
+        return
+
+    feed = p.feed()
+
+    if feed:
+        bot.reply_to(message, feed)
 
 
 bot.infinity_polling(none_stop=True)

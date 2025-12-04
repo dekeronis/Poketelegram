@@ -1,5 +1,6 @@
 from random import randint, random
 import requests
+from datetime import datetime, timedelta
 
 def get_pokemon(user_id):
     return Pokemon.pokemons.get(user_id)
@@ -24,6 +25,7 @@ class Pokemon:
         self.rarity_name = self.rarity_roll()
         self.bonus_factor = self.rarity_value(self.rarity_name)
 
+        self.last_feed_time = datetime(2007, 12, 6, 16, 29, 43, 79043)
         Pokemon.pokemons[trainer_id] = self
 
     # Загрузка данных
@@ -62,6 +64,17 @@ class Pokemon:
             "mythical": 2.0
         }
         return values[rarity]
+
+    def feed(self, feed_interval=20, hp_increase=10):
+        current_time = datetime.now()
+        delta_time = timedelta(hours=feed_interval)
+        print(current_time - self.last_feed_time)
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Здоровье покемона увеличено. Текущее здоровье: {self.hp}"
+        else:
+            return f"Следующее время кормления покемона: {current_time - delta_time}"
 
     # Система опыта
     def add_xp(self, amount):
@@ -113,6 +126,10 @@ class Wizard(Pokemon):
     def attack(self, enemy):
         print(super().attack(enemy))
 
+    def feed(self, feed_interval=30, hp_increase=15):
+        super().feed(feed_interval, hp_increase)
+
+
 class Fighter(Pokemon):
     def __init__(self, trainer_id):
         super().__init__(trainer_id)
@@ -126,6 +143,8 @@ class Fighter(Pokemon):
     def attack(self, enemy):
         print(super().attack(enemy))
 
+    def feed(self, feed_interval=15, hp_increase=8):
+        super().feed(feed_interval, hp_increase)
 if __name__ == "__main__":
     w = Wizard(1)
     f = Fighter(2)
